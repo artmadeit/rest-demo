@@ -6,7 +6,7 @@ services:
       - "3306:3306" # pc_port:container_port
     environment:
       - MYSQL_ROOT_PASSWORD=somesecretpassword
-      - MYSQL_DATABASE=cocina-db
+      - MYSQL_DATABASE=mascota-db
     volumes:
       - mysql-data:/var/lib/mysql
 volumes:
