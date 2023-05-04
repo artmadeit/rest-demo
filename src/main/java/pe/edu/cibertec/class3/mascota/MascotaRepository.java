@@ -1,4 +1,4 @@
-package pe.edu.cibertec.class3;
+package pe.edu.cibertec.class3.mascota;
 
 import org.springframework.data.repository.CrudRepository;
 
