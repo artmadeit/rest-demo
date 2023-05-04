@@ -16,5 +16,7 @@ public class User {
     Long id;
     String firstName;
     String email;
+
+    // @JsonIgnore
     String password;
 }
