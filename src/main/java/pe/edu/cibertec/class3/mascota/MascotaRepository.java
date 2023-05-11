@@ -1,7 +1,7 @@
 package pe.edu.cibertec.class3.mascota;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface MascotaRepository extends CrudRepository<Mascota, Long> {
+public interface MascotaRepository extends PagingAndSortingRepository<Mascota, Long> {
 
 }
