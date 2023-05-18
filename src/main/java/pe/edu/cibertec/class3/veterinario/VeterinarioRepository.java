@@ -1,7 +1,13 @@
 package pe.edu.cibertec.class3.veterinario;
 
-import org.springframework.data.repository.CrudRepository;
+import java.util.List;
 
-public interface VeterinarioRepository extends CrudRepository<Veterinario, Long> {
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+public interface VeterinarioRepository extends PagingAndSortingRepository<Veterinario, Long> {
+
+    List<Veterinario> findBySalario(Integer salario);
+
+    List<Veterinario> findBySalarioBetween(Integer salarioMin, Integer salarioMax);
 
 }

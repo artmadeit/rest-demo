@@ -1,7 +1,9 @@
 package pe.edu.cibertec.class3.veterinario;
 
-import java.util.Optional;
+import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,8 +30,13 @@ public class VeterinarioController {
     }
 
     @GetMapping
-    public Iterable<Veterinario> list() {
-        return this.veterinarioRepository.findAll();
+    public Page<Veterinario> list(Pageable pageable) {
+        return this.veterinarioRepository.findAll(pageable);
+    }
+
+    @GetMapping("filtrado")
+    public List<Veterinario> filtered(Integer salarioMin, Integer salarioMax) {
+        return veterinarioRepository.findBySalarioBetween(salarioMin, salarioMax);
     }
 
     @GetMapping("{id}")
