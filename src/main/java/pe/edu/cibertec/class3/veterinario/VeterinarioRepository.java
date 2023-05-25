@@ -12,7 +12,7 @@ public interface VeterinarioRepository extends PagingAndSortingRepository<Veteri
 
     List<Veterinario> findBySalarioBetween(Integer salarioMin, Integer salarioMax);
 
-    Page<VeterinarioResumen> findResumenAll(Pageable pageable);
+    Page<VeterinarioResumen> findResumenBy(Pageable pageable);
 
     // spring data es un conjunto de librerias que permiten acceder a bases de datos
     // de manera simple y uniforme

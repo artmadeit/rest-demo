@@ -38,12 +38,22 @@ public class VeterinarioController {
     }
 
     @GetMapping
-    public Page<VeterinarioResumen> list(Pageable pageable) {
+    public Page<?> list(Pageable pageable, @RequestParam(defaultValue = "false") Boolean isMobile) {
+        // rest projection (avanzado)
+
+        // aplicacion movil
+        // id, nombre, apellido
+        // aplicacion web
+        // muestras todos los campos
 
         // select v.id, v.nombre, v.apellido from Veterinario v;
         // spring data se le conoce como projection
 
-        return this.veterinarioRepository.findResumenAll(pageable);
+        if (isMobile) {
+            return this.veterinarioRepository.findResumenBy(pageable);
+        } else {
+            return this.veterinarioRepository.findAll(pageable);
+        }
 
         // select v from Veterinario v;
         // return this.veterinarioRepository.findAll(pageable).map(veterinario -> {
