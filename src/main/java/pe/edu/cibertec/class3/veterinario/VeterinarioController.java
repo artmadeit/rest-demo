@@ -38,8 +38,21 @@ public class VeterinarioController {
     }
 
     @GetMapping
-    public Page<Veterinario> list(Pageable pageable) {
-        return this.veterinarioRepository.findAll(pageable);
+    public Page<VeterinarioResumen> list(Pageable pageable) {
+
+        // select v.id, v.nombre, v.apellido from Veterinario v;
+        // spring data se le conoce como projection
+
+        return this.veterinarioRepository.findResumenAll(pageable);
+
+        // select v from Veterinario v;
+        // return this.veterinarioRepository.findAll(pageable).map(veterinario -> {
+        // VeterinarioResumenDto veterinarioDto = new VeterinarioResumenDto();
+        // veterinarioDto.setId(veterinario.getId());
+        // veterinarioDto.setNombre(veterinario.getNombre());
+        // veterinarioDto.setApellido(veterinario.getApellido());
+        // return veterinarioDto;
+        // });
     }
 
     @GetMapping("salarios")
