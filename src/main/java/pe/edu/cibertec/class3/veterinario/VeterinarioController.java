@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -43,8 +44,8 @@ public class VeterinarioController {
 
     @GetMapping("salarios")
     public List<Veterinario> findBySalarioBetween(
-            @PositiveOrZero Integer salarioMin,
-            @PositiveOrZero @Max(50_000) Integer salarioMax) {
+            @PositiveOrZero @RequestParam(defaultValue = "0") Integer salarioMin,
+            @PositiveOrZero @RequestParam(required = true) Integer salarioMax) {
 
         if (salarioMax < salarioMin) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Salario max no puede ser menor al salario min");
