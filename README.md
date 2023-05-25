@@ -185,3 +185,8 @@ Es muy usual ver proyectos que poseen 10, 20, 50, +100 clases en cada capa, se r
 Nota la forma de dividir es **muy subjetiva**, puede ser de grano más fino, por ejemplo podria haber la carpeta products podria dividirse en products, brands, categories. Esto dependendera de la decisión de los desarrolladores que forman parte del equipo. Se recomienda que a medida que crezca mucho un modulo, dividirlo. Hay muchas sugerencias en libro Domain Driven Design.
 
 Esta forma de dividir hacer proyectos grandes mas manejables y permite que cada modulo pueda ser extraido a otro proyecto (ser un nuevo servicio web o microservicio).
+
+## Clase 10
+
+Bean validation, es una especificacion que nos ayuda a validar objetos, agregando anotaciones como:
+@NotBlank, @Min, @Max, @Pattern (validar un patron x ejemplo, el dni o ruc), ...
