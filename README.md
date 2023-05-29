@@ -186,7 +186,184 @@ Nota la forma de dividir es **muy subjetiva**, puede ser de grano más fino, por
 
 Esta forma de dividir hacer proyectos grandes mas manejables y permite que cada modulo pueda ser extraido a otro proyecto (ser un nuevo servicio web o microservicio).
 
+## Clase 7
+
+Existen varias formas de ignorar ciertos campos cuando exponga una entidad. Por ejemplo, si tenemos una entidad User:
+
+```java
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // <= autoincremental
+    Long id;
+    String firstName;
+    String email;
+    String password;
+}
+```
+
+Y queremos que no se muestre el password, tenemos 3 opciones:
+
+1. Usar la anotacion @JsonIgnore por ejemplo [vea este link](https://github.com/artmadeit/rest-demo/commit/453103a02dc605b50437d8a6edc0569738795c41#r115511444)
+2. [Usar un DTO](https://github.com/artmadeit/rest-demo/commit/cbdac2ecf8d31e821d46e5f51bc5cbc6cde8d17f#r115511555) y mapear la entidad al DTO [como en este link](https://github.com/artmadeit/rest-demo/commit/453103a02dc605b50437d8a6edc0569738795c41#r115511690)
+3. Usar proyecciones: esto se vera en prox clases.
+
+## Clase 8
+
+[Un servicio REST que expone operaciones CRUD con Spring](https://github.com/artmadeit/rest-demo/commit/067616ec1ca0ff2ec937639ef746732f82d1a25c)
+
+## Clase 9
+
+Los query parameters son parametros pasados en una url, estas se aprecian luego de un simbolo ?.
+
+Por ejemplo, en http://localhost:8080/mascotas?page=1, el page es el parametro y el 1 es su valor. Además si queremos pasar varios parametros la url sera como: http://localhost:8080/mascotas?page=1&size=15, aqui ve el uso del simbolo & . Este actua como un separador, de las 2 variables, page con valor 1 y size con valor 15.
+
+Como manejamos query parameters en spring? por ejemplo digamos que tiene una api para listar veterinarios por un rango de salarios: http://localhost:8080/salarios?salarioMin=100&salarioMax=1500. El codigo para manejarlo en spring seria algo como:
+
+```java
+@GetMapping("salarios")
+public List<Veterinario> findBySalarioBetween(Integer salarioMin, Integer salarioMax) {
+    return veterinarioRepository.findBySalarioBetween(salarioMin, salarioMax);
+}
+```
+
+El ejemplo completo puede [verse aquí](https://github.com/artmadeit/rest-demo/commit/0de0a165fcbe164149a7ad2af68cf5f8f1ce42c3)
+
+Spring automaticamente mapea el query parameter con los argumentos de nuestro metodo. Sin embargo si queremos ser mas explicitos podemos usar la anotación @RequestParam.
+
+```java
+@GetMapping("salarios")
+public List<Veterinario> findBySalarioBetween(
+  @RequestParam Integer salarioMin, @RequestParam  Integer salarioMax) {
+    return veterinarioRepository.findBySalarioBetween(salarioMin, salarioMax);
+}
+```
+
+La anotacion @RequestParam nos puede ayudar no solo a ser mas explicitos sino a validar cierta información, por ejemplo, que si llamo a la url: http://localhost:8080/salarios?salarioMin=100, el salarioMax seria null. Para hacer requerido los parametros podemos pasarle como argumento:
+
+```java
+@GetMapping("salarios")
+public List<Veterinario> findBySalarioBetween(
+  @RequestParam(required=true) Integer salarioMin, @RequestParam(required=true) Integer salarioMax) {
+    return veterinarioRepository.findBySalarioBetween(salarioMin, salarioMax);
+}
+```
+
+Spring se encargara de dicha validacion. Ademas es util a veces que si un parametro no es requerido tenga un valor por defecto. por ejemplo si decimos http://localhost:8080/salarios?salarioMax=10000, podriamos suponer que el salario minimo es 0 y el salario maximo es 10000, en ese caso en vez de required puede usar defaultValue.
+
+```java
+@GetMapping("salarios")
+public List<Veterinario> findBySalarioBetween(
+  @RequestParam(defaultValue="0") Integer salarioMin, @RequestParam(required=true) Integer salarioMax) {
+    return veterinarioRepository.findBySalarioBetween(salarioMin, salarioMax);
+}
+```
+
+Note que el defaultValue es un string, no un entero. Esto es un requisito de spring, puesto que en si todos los query parameter son string (vea la documentación de http). Igual spring se encargara de pasar ese string a un entero (en este ejemplo, sin embargo puede usar cualquier otro tipo de datos boolean, date, etc).
+
 ## Clase 10
 
-Bean validation, es una especificacion que nos ayuda a validar objetos, agregando anotaciones como:
+### Validaciones a REST
+
+Java Bean validation, es una especificacion que nos ayuda a validar objetos, agregando anotaciones como:
 @NotBlank, @Min, @Max, @Pattern (validar un patron x ejemplo, el dni o ruc), ...
+
+Para agregar en spring boot dichas validaciones, en su archivo pom.xml agregue:
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+
+Luego anote sus clases (sea sus entidades o dtos) y para que se aplique las validaciones use @Valid en sus metodos (por ejemplo en su controlador en los metodos editar o crear). Veamos un ejemplo:
+
+1. Anotamos nuestra clase entidad o dto segun sea el caso
+
+```java
+class Veterinario {
+    @NotBlank
+    String nombre;
+    @NotBlank
+    String apellido;
+    @PositiveOrZero
+    BigDecimal salario;
+}
+```
+
+2. Agregamos el @Valid en nuestros metodos
+
+```java
+@RestController
+class VeterinarioController {
+    @PostMapping
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public Veterinario register(@RequestBody @Valid Veterinario veterinario) { // <= note el @Valid
+      // ...
+    }
+
+    @PutMapping("{id}")
+    public Veterinario edit(Long id, @RequestBody @Valid Veterinario veterinario) { // <= note el @Valid
+      // ...
+    }
+}
+```
+
+Y listo eso es todo 😄.
+
+> Nota: recomendamos usar las anotaciones de java bean validation en sus entidades. Estas no solo se aplicaran cuando use el @Valid sino tambien al momento de guardarse en la BD (incluso trae muchos [otros beneficios ponerlas ahi](https://www.manning.com/books/java-persistence-with-spring-data-and-hibernate)). Además recuerde evitar el uso de DTOs lo maximo posible (como mencionamos previamente)
+
+Si desea agregar validaciones a sus query parameters, debe hacer lo siguiente:
+
+1. A sus @RequestParam [agregue las anotaciones de bean validation que desee.](https://github.com/artmadeit/rest-demo/commit/6946f01a0095b2a8d16baa9911bad6615af664d7)
+2. A su [controller agregue el @Validated](https://github.com/artmadeit/rest-demo/commit/e509f8607e420813d464cb7980d2dc5819950dc7#r115520552)
+
+### Proyecciones REST
+
+Muy a menudo sus apis REST seran usadas por multiples aplicaciones (una web, una mobile, un desktop...), en el caso de aplicaciones mobiles, usted esperara recibir [menos información que una web o desktop](https://samnewman.io/patterns/architectural/bff/) (puesto que tiene menos espacio para mostrar información, las pantallas son mas chicas, y quiere reducir el consumo de datos). Un patrón muy conocido para esto son las proyecciones.
+
+Por ejemplo digamos que tiene un metodo GET para listar veterinarios, y cada veterinario tiene estos campos:
+
+```java
+class Veterinario {
+  String nombre;
+  String apellido;
+  LocalDate fechaNacimiento;
+  String dni;
+  String numeroCertificadoVeterinario;
+  String especialidad;
+  String descripcion;
+}
+```
+
+De repente su aplicacion web muestre toda esa informacion, pero en su aplicacion movil solo necesita mostrar el nombre, apellido. En ese caso puede crear una projection en REST, indicandole un query parameter para indicar si es movil o no.
+
+```java
+    @GetMapping
+    public Page<?> list(Pageable pageable, @RequestParam(defaultValue = "false") Boolean isMobile) {
+      if (isMobile) {
+          // en el caso de movil retorno menos campos
+          return this.findResumenBy(pageable);
+      } else {
+          // muestro todos los campos
+          return this.findAll(pageable);
+      }
+    }
+```
+
+El `findResumenBy` puede ser implementado de 2 formas:
+
+1. Usando DTOs, como lo vimos en la clase 7.
+   Se necesita crear un dto con los campos basicos que queremos (en este caso nombre, apellido), se llama al mismo metodo findAll() y se debe crear un mapeo del entity al dto.
+   Esta opcion no es recomendada, por performance, si mi entidad tiene 20 campos, me traera dichos campos en memoria en java.
+2. Usando spring data projections (recomendada)
+   Si mi entidad tiene 20 campos, hara un select trayendo solo los campos que requiero: select nombre, apellido from Veterinario;
+
+   En spring data actualmente tambien hay 2 opciones, vea [la documentacion, para mayor informacion](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#projections).
+
+   Puede ver un ejemplo usando [data projections con interfaces aqui](https://github.com/artmadeit/rest-demo/commit/94c843c9c5dfd0745a09ee6bdf7ec730e254ba13)
+
+> Nota: no confundir rest projections con spring data projections, el concepto de rest projection es usado no solo en spring sino en cualquier lenguaje o tecnologia (es usado por ejemplo en Django con python o en Laravel con php), es en si una tecnica en REST para indicar que atributos el cliente (web, mobile) necesita, de hecho hay muchas variantes y patrones mas sofisticados (vea por ejemplo Backend for frontend). Mientras que spring data projections es simplemente el termino usado para indicar que las consultas en la BD usan un select campo1, campo2 from mitabla.
+> El termino projection nace de SQL, el operador SELECT tambien es conocido como projection, en el sentido de escoge solo la "informacion que necesitas". De ahi el termino es usado en REST, Event Sourcing, Spring Data,entre otros muchos lugares.
