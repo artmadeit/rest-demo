@@ -367,3 +367,72 @@ El `findResumenBy` puede ser implementado de 2 formas:
 
 > Nota: no confundir rest projections con spring data projections, el concepto de rest projection es usado no solo en spring sino en cualquier lenguaje o tecnologia (es usado por ejemplo en Django con python o en Laravel con php), es en si una tecnica en REST para indicar que atributos el cliente (web, mobile) necesita, de hecho hay muchas variantes y patrones mas sofisticados (vea por ejemplo Backend for frontend). Mientras que spring data projections es simplemente el termino usado para indicar que las consultas en la BD usan un select campo1, campo2 from mitabla.
 > El termino projection nace de SQL, el operador SELECT tambien es conocido como projection, en el sentido de escoge solo la "informacion que necesitas". De ahi el termino es usado en REST, Event Sourcing, Spring Data,entre otros muchos lugares.
+
+## Clase 11
+
+El frontend puede verlo en https://github.com/artmadeit/quekiwi-frontend/tree/class11
+
+### CORS
+
+Cuando intente integrar su frontend a su backend, muchas veces vera un error como el siguiente:
+
+![cors error](https://res.cloudinary.com/practicaldev/image/fetch/s--h23BwLtS--/c_imagga_scale,f_auto,fl_progressive,h_500,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/jenik9atwnnnw815b8au.png)
+
+Como solucionar ese error? El 1er paso es entender a que se debe ese error, si ve el error vera el termino CORS.
+
+CORS es el acronimo de Cross-Origin Resource Sharing o en español intercambio de recursos de origen cruzado. Ya sabemos por las clases que es un Recurso (sino recuerdas es la base de REST...). Nos queda entender entonces que es origen cruzado.
+
+Un ejemplo de solicitud de origen cruzado: cuando su javascript de su front-end servido desde https://domain-a.com hace una peticion fetch() a https://domain-b.com/data.json.
+
+O como en el caso de aca: su frontend hace un fetch() desde http://localhost:3000 a su backend en http://localhost:8080.
+
+Es decir los origenes son distintos. Por razones de seguridad, los navegadores restringen las peticiones HTTP de origen cruzado.
+
+### CORS en Spring
+
+En spring usted puede configurar su backend para seguir politicas de CORS, usando 2 formas:
+
+1. @CrossOrigin
+2. De forma global
+
+3. Anote su metodo o controlador, por ejemplo si desea que su metodo POST use CORS, haga:
+
+```java
+@CrossOrigin(origins = "http://localhost:3000")
+@PostMapping
+public Veterinario registrar(Veterinario veterinario) {
+  // ...
+}
+```
+
+Esto hara que acepte peticiones de http://localhost:3000 (por ejemplo su frontend en React o Vuejs, si usara Angular seria algo como: http://localhost:3000).
+
+Tambien puede ponerlo a nivel de controlador (esto hara que aplique a todos sus metodos)
+
+```java
+@CrossOrigin(origins = "http://localhost:3000")
+@RestController
+public class VeterinarioController {
+  // ...
+}
+```
+
+2. De forma global,
+   si tiene muchos controladores es mejor que use esta forma. En un archivo de configuracion, puede indicar ello
+
+```java
+@Configuration
+public class WebConfiguration implements WebMvcConfigurer {
+   @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**") // aplica a todos los controladores
+                //.addMapping("/veterinarios/*") // aplica al VeterinarioController
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("*"); //  * es a todos
+                // .allowedMethods("POST"); solo a POST
+                // .allowedMethods("POST", "GET");  a POST y GET
+    }
+}
+```
+
+Vea un [ejemplo completo aqui](https://github.com/artmadeit/rest-demo/commit/5840d645e595efab187fea01a87a69b1eacd241e)
