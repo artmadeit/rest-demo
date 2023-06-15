@@ -436,3 +436,45 @@ public class WebConfiguration implements WebMvcConfigurer {
 ```
 
 Vea un [ejemplo completo aqui](https://github.com/artmadeit/rest-demo/commit/5840d645e595efab187fea01a87a69b1eacd241e)
+
+## Clase 13
+
+Existen dos enfoques para desarrollar servicios:
+
+- API first (Top down), primero diseño la API, es decir que urls, metodos, request, query parameters,request body y responses definen mi API. Vea más en https://swagger.io/resources/articles/adopting-an-api-first-approach/
+- Code first (bottom up), primero programo en mi lenguaje (java, python, php, js...) y a partir de ello puedo documentar mis APIs.
+
+Cada uno tiene sus ventajas y desventajas.
+
+Vea un ejemplo de [API First con Spring](https://github.com/artmadeit/rest-api-first-demo)
+El ejemplo de Code First lo encontrara en este repositorio, para ello en Spring hay 2 librerias: spring fox y springdoc.
+
+Spring fox era muy usado sin embargo esta sin mantenimiento, evite su uso!.
+
+Para usar spring doc, instale la libreria, agregando en sus `<dependencies>` de su pom.xml, lo siguiente:
+
+```xml
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-ui</artifactId>
+  <version>1.7.0</version>
+</dependency>
+```
+
+Luego cree una clase y describa los elementos principales de su API:
+
+```java
+@OpenAPIDefinition(
+  info = @Info(
+    title = "API Mascotas",
+    description = "Contiene las API REST para hacer CRUD de Mascotas y Veterinarios",
+    contact = @Contact(email = "devteam@quekiwi.com", name = "Equipo de desarrollo"
+  )),
+  servers = {
+    @Server(url = "http://localhost:8080", description = "Local"),
+    @Server(url = "http://api.quekiwi.com", description = "Production"),
+  }
+)
+public class OpenApiConfiguration {
+}
+```
