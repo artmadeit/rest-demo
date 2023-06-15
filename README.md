@@ -478,3 +478,5 @@ Luego cree una clase y describa los elementos principales de su API:
 public class OpenApiConfiguration {
 }
 ```
+
+Para visualizar su API documentada entre a `http://localhost:8080/swagger-ui/index.html`
