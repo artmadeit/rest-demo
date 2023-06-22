@@ -481,7 +481,52 @@ public class OpenApiConfiguration {
 
 Para visualizar su API documentada entre a `http://localhost:8080/swagger-ui/index.html`
 
-## Clase 15: Consumo de API REST entre servicios
+## Clase 15
+
+### Más anotaciones de OpenAPI
+
+Las anotacion @Tag es util en su controlador, esta corresponde con `tag` en open api, la cual sirve para agrupar APIs (request/response) por ejemplo todo lo relacionado a personas: crear, editar, eliminar, editar.
+
+```java
+@RestController
+@RequestMapping("personas")
+@Tag("personas")
+public class PersonaController {
+  // ...
+}
+```
+
+Las anotacion @ParameterObject sirve cuando recibe objetos, en sus query string, por ejemplo.
+
+```java
+@Data
+public class RangoSalario {
+  Integer salarioMin;
+  Integer salarioMax;
+}
+
+@RestController
+@RequestMapping("personas")
+public class PersonaController {
+
+  // corresponde a http://localhost:8080/personas/salarios?salarioMin=1500&salarioMax=5000
+  @GetMapping("/salarios")
+  public List<Persona> filtrarPorRango(@ParameterObject RangoSalario rango) {
+    // ...
+  }
+
+  // @ParameterObject es muy util cuando usa Pageable de spring
+  // corresponde a http://localhost:8080/personas
+  // corresponde a http://localhost:8080/personas?page=1&size=50
+  @GetMapping
+  public Page<Persona> filtrar(@ParameterObject Pageable rango) {
+    // ...
+  }
+
+}
+```
+
+### Consumo de API REST entre servicios
 
 Al igual que usted consumio un servicio (hizo un request) desde su frontend (por ejemplo, usando fetch o axios en caso de react y vue o HttpClient en Angular), un servicio puede consumir otro servicio.
 
