@@ -480,3 +480,64 @@ public class OpenApiConfiguration {
 ```
 
 Para visualizar su API documentada entre a `http://localhost:8080/swagger-ui/index.html`
+
+## Clase 15: Consumo de API REST entre servicios
+
+Al igual que usted consumio un servicio (hizo un request) desde su frontend (por ejemplo, usando fetch o axios en caso de react y vue o HttpClient en Angular), un servicio puede consumir otro servicio.
+
+Esta es la idea basica de SOA y microservices. En java, usted tiene varias opciones:
+
+- A partir de java 9, existe la clase http client, antes era super tedioso...
+- En spring puede usar RestTemplate (muy usado pero ahora deprecado), WebClient y a partir de spring 6, hay un nuevo http client.
+
+Veamos RestTemplate, esta es una clase con la que usted puede hacer peticiones GET, POST, PUT, DELETE...
+Por ejemplo:
+
+Si existe un servicio que expone un metodo GET en http://unaapi.com/personas/{id} y retorna un response body como el siguiente
+
+```json
+{
+  "id": 1,
+  "nombre": "Arthur",
+  "apellido": "Mauricio",
+  "edad": 27,
+  "genero": "M",
+  "carrera": "..."
+}
+```
+
+Si quiere hacer una peticion GET para dicho endpoint haria algo como:
+
+```java
+@Component // <= note usamos @Component o @Service, puesto que queremos que sea inyectable por Spring
+public class PersonaGateway {
+    public PersonaDto findById(Long id) {
+        return new RestTemplate().getForObject("http://localhost:8080/personas/{id}", PersonaDto.class, id);
+    }
+}
+```
+
+Donde existe un archivo PersonaDto.java como el siguiente:
+
+```java
+@Data
+public class PersonaDto {
+  private Long id;
+  private String nombre;
+  private String apellido;
+
+  // note si solo necesita nombre y apellido, los campos de abajo no son necesarios
+  // siga la ley de Postel
+
+  // private Integer edad;
+  // private String genero;
+  // private String carrera;
+}
+```
+
+Para mayor informacion consulte:
+
+- Http Client nativo de java, https://www.baeldung.com/java-9-http-client
+- RestTemplate en spring, https://www.baeldung.com/rest-template
+- Nuevo cliente spring, https://www.baeldung.com/spring-6-http-interface
+- Web client spring, https://www.baeldung.com/spring-5-webclient
