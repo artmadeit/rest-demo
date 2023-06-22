@@ -6,6 +6,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.PositiveOrZero;
 
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,12 +23,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("veterinarios")
 @AllArgsConstructor
 @Validated
+@Tag(name = "veterinarios")
 public class VeterinarioController {
     VeterinarioRepository veterinarioRepository;
 
@@ -38,7 +41,7 @@ public class VeterinarioController {
     }
 
     @GetMapping
-    public Page<?> list(Pageable pageable, @RequestParam(defaultValue = "false") Boolean isMobile) {
+    public Page<?> list(@ParameterObject Pageable pageable, @RequestParam(defaultValue = "false") Boolean isMobile) {
         // rest projection (avanzado)
 
         // aplicacion movil
