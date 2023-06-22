@@ -580,6 +580,8 @@ public class PersonaDto {
 }
 ```
 
+Vea el ejemplo completo en: https://github.com/artmadeit/rest-api-first-demo/blob/class15/src/main/java/pe/edu/cibertec/boletas/ServicioGateway.java
+
 Para mayor informacion consulte:
 
 - Http Client nativo de java, https://www.baeldung.com/java-9-http-client
